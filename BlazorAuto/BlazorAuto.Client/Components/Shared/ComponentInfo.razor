@@ -1,0 +1,23 @@
+﻿<div class="card my-2" style="width: 27rem;">
+    <div class="card-body">
+        <h5 class="card-title text-center">Component Info</h5>
+        <ul>
+            <li>
+                En proyecto @(InProjectClient ? "Cliente" : "Servidor")
+            </li>
+            <li>
+                @($"{(Authorization ? "Con" : "Sin")} autorización requerida")
+            </li>
+            <li>
+                RenderMode: @RenderMode
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+@code {
+    [Parameter] public bool InProjectClient { get; set; }
+    [Parameter] public bool Authorization { get; set; }
+    [Parameter] public string RenderMode { get; set; } = "";
+}

@@ -1,0 +1,65 @@
+﻿@inject AuthenticationStateProvider authStateProvider
+@inject IHttpClientFactory HttpClientFactory
+
+@if(!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+    <br />
+}
+
+<div class="card my-2" style="width: 27rem;">
+    <div class="card-body">
+        <h5 class="card-title text-center">Auth Info</h5>
+        <ul>
+            <li>
+                AuthState: @authStateMessage
+            </li>
+            <li>
+                Server endpoint context: @serverEndpointMessage
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+@code {
+    private string authStateMessage = "-";
+    private string serverEndpointMessage = "-";
+    private string errorMessage = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await base.OnInitializedAsync();
+
+            var authState = await authStateProvider.GetAuthenticationStateAsync();
+
+            authStateMessage = authState.User.Identity?.IsAuthenticated ?? false ?
+                $"{authState.User.Identity.Name}" :
+                "No autenticado";
+
+
+
+            var client = HttpClientFactory.CreateClient(Auth0Options.HttpClientName);
+            var httpResponse = await client.GetAsync("api/user");
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var data = await httpResponse.Content.ReadAsStringAsync();
+                serverEndpointMessage = $"{data}";
+            }
+            else
+            {
+                serverEndpointMessage = $"Error fetching user: {httpResponse.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+}
